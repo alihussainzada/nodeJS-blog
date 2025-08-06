@@ -21,6 +21,10 @@
       text-align: center;
       margin-bottom: 20px;
     }
+    .extra-links {
+      text-align: center;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
@@ -29,10 +33,10 @@
       <h2 class="login-title">Welcome Back 👋</h2>
 
       <% if (typeof error !== 'undefined' && error) { %>
-  <div class="alert alert-danger" role="alert">
-    <%= error %>
-  </div>
-<% } %>
+        <div class="alert alert-danger" role="alert">
+          <%= error %>
+        </div>
+      <% } %>
 
       <form action="/auth/login" method="POST">
         <div class="mb-3">
@@ -43,8 +47,15 @@
           <label for="password" class="form-label">Password</label>
           <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••">
         </div>
+
+        <div class="extra-links mb-3">
+          <a href="/auth/forgot-password">Forgot Password?</a>
+        </div>
+
         <button type="submit" class="btn btn-primary w-100">Login</button>
       </form>
+
+      <a href="/auth/register" class="btn btn-outline-success w-100 mt-3">Create New Account</a>
     </div>
   </div>
 </body>
