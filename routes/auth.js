@@ -96,7 +96,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     // Generate a unique token
-    const token = await generateStrongToken();
+    var token = await generateStrongToken();
 
     // Save the token associated with the user's email
     await ForgotPassword.create({
@@ -111,6 +111,44 @@ router.post('/forgot-password', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.render('forgot-password', { error: 'Internal server error' });
+  }
+});
+
+router.get('/forgot-password/:token', (req, res) => {
+  const token = req.params.token;
+  res.render('reset-password', { token });
+});
+
+router.post('/forgot-password/:token', async (req, res) => {
+  const { password, confirmPassword } = req.body;
+  const token = req.params.token;
+
+  try {
+    if (password !== confirmPassword) {
+      return res.render('reset-password', { error: 'Passwords do not match', token });
+    }
+
+    const tokenEntry = await ForgotPassword.findOne({ where: { token } });
+    if (!tokenEntry) {
+      return res.render('reset-password', { error: 'Invalid or expired token' });
+    }
+
+    const user = await User.findOne({ where: { email: tokenEntry.email } });
+    if (!user) {
+      return res.render('reset-password', { error: 'User not found' });
+    }
+
+    // Update password
+    user.password = password;
+    await user.save();
+
+    // Remove the token
+    await tokenEntry.destroy();
+
+    res.render('reset-password', {   success: 'Password updated successfully! Now, you can login', token: null });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.render('reset-password', { error: 'Internal server error', token });
   }
 });
 
