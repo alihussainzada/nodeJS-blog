@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create New Blog Post</title>
+  <!-- Link to Bootstrap (or Tailwind, replace as needed) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+  <div class="container mt-5">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h4>Create New Blog Post</h4>
+      </div>
+      <div class="card-body">
+        <% if (typeof error !== 'undefined') { %>
+          <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+
+        <form action="/posts/create" method="POST" enctype="multipart/form-data">
+          <!-- Title -->
+          <div class="mb-3">
+            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="title" name="title" required placeholder="Enter the title">
+          </div>
+
+          <!-- Category -->
+          <div class="mb-3">
+            <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+            <select class="form-select" id="category" name="category" required>
+              <option value="" disabled selected>Select category</option>
+              <option value="Bug Bounty">Bug Bounty</option>
+              <option value="Pentesting">Pentesting</option>
+              <option value="CTF">CTF</option>
+              <option value="Programming">Programming</option>
+              <option value="Personal">Personal</option>
+              <!-- Add more as needed -->
+            </select>
+          </div>
+
+          <!-- Content -->
+          <div class="mb-3">
+            <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="content" name="content" rows="10" required placeholder="Write your post..."></textarea>
+          </div>
+
+          <!-- Submit -->
+          <div class="d-flex justify-content-end">
+            <a href="/auth/profile" class="btn btn-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-success">Publish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional: Add a rich text editor like CKEditor or TinyMCE -->
+  <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+  <script>
+    ClassicEditor
+      .create(document.querySelector('#content'))
+      .catch(error => {
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

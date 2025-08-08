@@ -3,13 +3,12 @@ const router = express.Router();
 const User = require('../models/User')
 const ForgotPassword = require('../models/forgot-password')
 const jwt = require('jsonwebtoken');
-const { READUNCOMMITTED } = require('sequelize/lib/table-hints');
+const myAuth = require('../middleware/middleware')
 const crypto = require('crypto');
 
 function generateStrongToken() {
   return crypto.randomBytes(32).toString('hex');
 }
-
 
 const secret_key = "supersecretkey"
 router.get('/register', async(req, res) => {
@@ -55,7 +54,7 @@ router.post('/login', async (req, res) => {
 
     // Create JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, name: user.name, email: user.email },
       secret_key,
       { expiresIn: '1h' }
     );
@@ -64,7 +63,7 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, { httpOnly: true });
 
     // Redirect to profile
-    res.render('profile', {user});
+    res.redirect('profile')
   } catch (error) {
     console.error('Login error:', error);
     res.render('login', { error: 'Something went wrong' });
@@ -72,8 +71,19 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/profile', async (req, res)=>{
-    // res.render('profile', {token})
-    res.send("hi")
+    const {token} = req.cookies;
+    console.log(token)
+    if (!token) {
+      res.redirect('/auth/login')
+    }
+    else{
+      if (token){
+        const decoded = jwt.verify(token, secret_key);
+        console.log(decoded)
+        const user = decoded;
+        res.render('profile', {user})
+      }
+    }
 })
 
 router.get('/logout', (reg, res) => {

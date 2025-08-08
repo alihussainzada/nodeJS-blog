@@ -4,13 +4,17 @@ const sequelize = require('./database/db_connection')
 const User = require('./models/User')
 const path = require('path');
 const authRoute = require('./routes/auth')
+const postsRoute = require('./routes/posts')
 const port = 3000
 app.set('view engine', 'ejs'); // use ejs
 app.set('views', path.join(__dirname, 'views')); // views folder
 app.use(express.urlencoded({ extended: true })); // for form data
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.render('home', { blogs, user: req.user || null });
 })
 
 // app.get('/create-user', async (req, res) => {
@@ -23,7 +27,7 @@ app.get('/', (req, res) => {
 // })
 
 app.use('/auth', authRoute)
-
+app.use('/posts', postsRoute)
 app.listen(port, async () => {
 try {
 
