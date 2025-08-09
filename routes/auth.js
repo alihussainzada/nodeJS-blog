@@ -9,7 +9,6 @@ const crypto = require('crypto');
 function generateStrongToken() {
   return crypto.randomBytes(32).toString('hex');
 }
-
 const secret_key = "supersecretkey"
 router.get('/register', async(req, res) => {
     res.render('register')
@@ -54,7 +53,7 @@ router.post('/login', async (req, res) => {
 
     // Create JWT token
     const token = jwt.sign(
-      { id: user.id, name: user.name, lastname: user.lastname, email: user.email },
+      { id: user.id, name: user.name, lastname: user.lastname, image: user.profilePicture, email: user.email },
       secret_key,
       { expiresIn: '1h' }
     );
@@ -63,27 +62,13 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, { httpOnly: true });
 
     // Redirect to profile
-    res.redirect('profile')
+    res.redirect('/user/profile')
   } catch (error) {
     console.error('Login error:', error);
     res.render('login', { error: 'Something went wrong' });
   }
 });
 
-router.get('/profile', async (req, res)=>{
-    const {token} = req.cookies;
-    if (!token) {
-      res.redirect('/auth/login')
-    }
-    else{
-      if (token){
-        const decoded = jwt.verify(token, secret_key);
-        console.log(decoded)
-        const user = decoded;
-        res.render('profile', {user})
-      }
-    }
-})
 
 router.get('/logout', (reg, res) => {
   res.clearCookie('token'); // Clears the token cookie
@@ -158,65 +143,6 @@ router.post('/forgot-password/:token', async (req, res) => {
   } catch (err) {
     console.error('Reset password error:', err);
     res.render('reset-password', { error: 'Internal server error', token });
-  }
-});
-
-router.get('/edit-profile', (req, res) => {
-  const {token} = req.cookies;
-    if (!token) {
-      res.redirect('/auth/login')
-    }
-    else{
-      if (token){
-        const decoded = jwt.verify(token, secret_key);
-        const user = decoded;
-        res.render('edit-profile', {user})
-      }
-    }
-})
-
-router.post('/edit-profile', async (req, res) => {
-  const { name, lastname, currentPassword, newPassword, confirmNewPassword, action } = req.body;
-  const { token } = req.cookies;
-
-  if (!token) return res.redirect('/auth/login');
-
-  let decodedUser;
-  try {
-    decodedUser = jwt.verify(token, secret_key);
-  } catch {
-    return res.redirect('/auth/login');
-  }
-
-  try {
-    const user = await User.findOne({ where: { email: decodedUser.email } });
-    if (!user) return res.render('edit-profile', { error: 'User not found' });
-
-    if (action === 'updateName') {
-      user.name = name;
-      user.lastname = lastname;
-      await user.save();  // Make sure to save the instance!
-
-      return res.render('edit-profile', { success: 'Name updated!', user });
-    }
-
-    if (action === 'changePassword') {
-      if (user.password !== currentPassword) {
-        return res.render('edit-profile', { error: 'Current password incorrect', user: req.body });
-      }
-      if (newPassword !== confirmNewPassword) {
-        return res.render('edit-profile', { error: 'New passwords do not match', user: req.body });
-      }
-      user.password = newPassword;
-      await user.save();
-
-      return res.render('edit-profile', { success: 'Password changed!', user });
-    }
-
-    res.render('edit-profile', { error: 'Invalid action', user: req.body });
-  } catch (err) {
-    console.error(err);
-    res.render('edit-profile', { error: 'Something went wrong', user: req.body });
   }
 });
 

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>User Profile - KoalaSEC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
@@ -13,6 +14,7 @@
       margin: 80px auto;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      background: white;
     }
     .card-header {
       background-color: #007bff;
@@ -20,11 +22,21 @@
       border-radius: 15px 15px 0 0;
     }
     .profile-avatar {
-      width: 100px;
-      height: 100px;
-      background-color: #ddd;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 20px;
+      overflow: hidden;
       border-radius: 50%;
-      margin: 0 auto 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ddd;
+    }
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -32,18 +44,24 @@
   <div class="container">
     <div class="card profile-card">
       <div class="card-header text-center">
-        <h3><%= user.name %>'s Profile</h3>
+        <h3><%= user.name %>’s Profile</h3>
       </div>
       <div class="card-body text-center">
-        <div class="profile-avatar d-flex align-items-center justify-content-center">
-          <span class="text-muted">👤</span>
+        <div class="profile-avatar">
+          <img
+            id="profilePicPreview"
+            src="<%= user && user.profilePicture && user.profilePicture.trim() !== '' 
+                  ? '/static/images/' + user.profilePicture 
+                  : '/static/images/1.png' %>"
+            alt="Profile Picture"
+          />
         </div>
         <p><strong>Full Name:</strong> <%= user.name %> <%= user.lastname %></p>
         <p><strong>Email:</strong> <%= user.email %></p>
-        <!-- Add more fields if available -->
+
         <div class="d-grid gap-2 mt-4">
           <a href="/posts/create" class="btn btn-primary">Add New Blog Post</a>
-          <a href="/auth/edit-profile" class="btn btn-warning">Edit Profile</a>
+          <a href="/user/edit-profile" class="btn btn-warning">Edit Profile</a>
           <a href="/auth/logout" class="btn btn-outline-danger">Logout</a>
         </div>
       </div>

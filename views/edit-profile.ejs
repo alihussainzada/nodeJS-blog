@@ -20,7 +20,67 @@
           <div class="alert alert-success"><%= success %></div>
         <% } %>
 
-        <form action="/auth/edit-profile" method="POST">
+        <!-- Profile Picture Section -->
+        <form id="profilePicForm" enctype="multipart/form-data" class="mb-4">
+          <div class="text-center mb-3">
+            <img
+              id="profilePicPreview"
+              src="<%= user && user.profilePicture && user.profilePicture.trim() !== '' 
+                    ? '/static/images/' + user.profilePicture 
+                    : '/static/images/1.png' %>" 
+              alt="Profile Picture" 
+              class="img-fluid rounded-circle"
+              style="max-width: 150px; cursor: pointer;"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="profilePicture" class="form-label">Upload New Profile Picture</label>
+            <input type="file" id="profilePicture" name="profilePicture" class="form-control" accept="image/*" />
+          </div>
+        </form>
+        <script>
+        const inputFile = document.getElementById('profilePicture');
+        const previewImg = document.getElementById('profilePicPreview');
+
+        inputFile.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // Show preview immediately
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            previewImg.src = ev.target.result;
+          }
+          reader.readAsDataURL(file);
+
+          // Prepare form data
+          const formData = new FormData();
+          formData.append('profilePicture', file);
+
+          try {
+            const res = await fetch('/user/update-profile-picture', {
+              method: 'POST',
+              body: formData
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+              alert('Profile picture updated successfully!');
+            } else {
+              alert(data.error || 'Failed to upload image.');
+            }
+          } catch (err) {
+            alert('Error uploading file.');
+            console.error(err);
+          }
+        });
+      </script>
+
+
+
+        <!-- Edit Name & Lastname -->
+        <form action="/user/edit-profile" method="POST">
           <div class="mb-3">
             <label for="name" class="form-label">First Name</label>
             <input
@@ -45,15 +105,14 @@
             />
           </div>
 
-          <!-- Update name/lastname button -->
           <button type="submit" name="action" value="updateName" class="btn btn-primary w-100 mb-4">
             Update Name & Lastname
           </button>
 
           <hr />
 
+          <!-- Change Password Section -->
           <h5>Change Password</h5>
-
           <div class="mb-3">
             <label for="currentPassword" class="form-label">Current Password</label>
             <input
@@ -87,7 +146,6 @@
             />
           </div>
 
-          <!-- Update password button -->
           <button type="submit" name="action" value="changePassword" class="btn btn-primary w-100">
             Change Password
           </button>

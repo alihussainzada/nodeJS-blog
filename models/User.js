@@ -26,7 +26,12 @@ const User = sequelize.define('User', {
   password: {
     type: DataTypes.STRING,
     allowNull: false
-  }
+  },
+  profilePicture: {
+      type: DataTypes.STRING, // store just the filename or full path
+      allowNull: true,
+      defaultValue: '/static/images/default-avatar.png' // can be empty for new users
+    }
 }, {
   timestamps: true // adds createdAt and updatedAt
 });
